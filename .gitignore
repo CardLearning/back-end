@@ -1,0 +1,42 @@
+## .NET
+bin
+obj
+.user
+.suo
+.userprefs
+.rsuser
+.sln.docstates
+.vcxproj.user
+.lock.json
+.nupkg
+.snupkg
+.nuspec
+.cache
+.pdb
+
+# ASP.NET logs
+logs
+.log
+
+# Config transforms
+.config.
+!appsettings.json
+
+# Dotnet tools
+.config
+
+## Rider
+.idea
+.ipr
+.iws
+.iml
+.idea
+
+# Rider cache directories
+.idea
+cmake-build-
+
+
+## Visual Studio Code
+.vscode
+!.vscodese
