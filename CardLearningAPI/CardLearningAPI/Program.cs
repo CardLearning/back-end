@@ -25,6 +25,10 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.MapGet("/healthz", () => Results.Ok(new { status = "Healthy" }))
+    .WithName("HealthCheck")
+    .WithOpenApi();
+
 app.MapControllers();
 app.UseSwagger();
 app.UseSwaggerUI(options =>
@@ -33,3 +37,5 @@ app.UseSwaggerUI(options =>
     options.RoutePrefix = string.Empty;
 });
 app.Run();
+
+public partial class Program;
