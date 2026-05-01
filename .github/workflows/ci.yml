@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore
+        run: dotnet restore CardLearningAPI/CardLearningAPI.sln
+
+      - name: Build
+        run: dotnet build CardLearningAPI/CardLearningAPI.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test CardLearningAPI/CardLearningAPI.sln --configuration Release --no-build --logger trx --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults
+          if-no-files-found: ignore
+
+      - name: Validate Docker build
+        run: docker build --pull --file CardLearningAPI/CardLearningAPI/Dockerfile --tag cardlearning-api:ci CardLearningAPI

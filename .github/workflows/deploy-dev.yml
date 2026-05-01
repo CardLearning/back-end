@@ -1,0 +1,154 @@
+name: Deploy Dev
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build, test, publish, and deploy
+    runs-on: ubuntu-latest
+    environment: dev
+
+    env:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID || vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID || vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID || vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP || vars.AZURE_RESOURCE_GROUP }}
+      AZURE_CONTAINER_APP_NAME: ${{ secrets.AZURE_CONTAINER_APP_NAME || vars.AZURE_CONTAINER_APP_NAME }}
+      AZURE_ACR_NAME: ${{ secrets.AZURE_ACR_NAME || vars.AZURE_ACR_NAME }}
+      IMAGE_REPOSITORY: cardlearning-api
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore
+        run: dotnet restore CardLearningAPI/CardLearningAPI.sln
+
+      - name: Build
+        run: dotnet build CardLearningAPI/CardLearningAPI.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test CardLearningAPI/CardLearningAPI.sln --configuration Release --no-build --logger trx --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults
+          if-no-files-found: ignore
+
+      - name: Validate deployment configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          required_vars=(
+            AZURE_CLIENT_ID
+            AZURE_TENANT_ID
+            AZURE_SUBSCRIPTION_ID
+            AZURE_RESOURCE_GROUP
+            AZURE_CONTAINER_APP_NAME
+            AZURE_ACR_NAME
+          )
+
+          for name in "${required_vars[@]}"; do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required GitHub environment secret or variable: $name"
+              exit 1
+            fi
+          done
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push image
+        id: image
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          az acr login --name "$AZURE_ACR_NAME"
+
+          image="${AZURE_ACR_NAME}.azurecr.io/${IMAGE_REPOSITORY}:${GITHUB_SHA}"
+          docker build \
+            --pull \
+            --file CardLearningAPI/CardLearningAPI/Dockerfile \
+            --tag "$image" \
+            CardLearningAPI
+
+          docker push "$image"
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+
+      - name: Configure Container App registry
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          az containerapp registry set \
+            --name "$AZURE_CONTAINER_APP_NAME" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --server "${AZURE_ACR_NAME}.azurecr.io" \
+            --identity system
+
+      - name: Deploy Container App revision
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          az containerapp update \
+            --name "$AZURE_CONTAINER_APP_NAME" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --image "${{ steps.image.outputs.image }}" \
+            --set-env-vars ASPNETCORE_URLS=http://+:8080 ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+
+      - name: Verify active revision image
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          active_image="$(az containerapp revision list \
+            --name "$AZURE_CONTAINER_APP_NAME" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --query "[?properties.active].properties.template.containers[0].image | [0]" \
+            --output tsv)"
+
+          if [ "$active_image" != "${{ steps.image.outputs.image }}" ]; then
+            echo "Expected active image '${{ steps.image.outputs.image }}' but found '$active_image'."
+            exit 1
+          fi
+
+      - name: Verify health endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          fqdn="$(az containerapp show \
+            --name "$AZURE_CONTAINER_APP_NAME" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --query "properties.configuration.ingress.fqdn" \
+            --output tsv)"
+
+          echo "Health endpoint: https://${fqdn}/healthz"
+          curl --fail --show-error --silent --retry 10 --retry-all-errors --retry-delay 10 "https://${fqdn}/healthz"
