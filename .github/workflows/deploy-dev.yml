@@ -123,21 +123,44 @@ jobs:
             --image "${{ steps.image.outputs.image }}" \
             --set-env-vars ASPNETCORE_URLS=http://+:8080 ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 
-      - name: Verify active revision image
+      - name: Wait for active revision rollout
         shell: bash
         run: |
           set -euo pipefail
 
-          active_image="$(az containerapp revision list \
+          expected_image="${{ steps.image.outputs.image }}"
+          active_image=""
+
+          for attempt in {1..30}; do
+            active_image="$(az containerapp revision list \
+              --name "$AZURE_CONTAINER_APP_NAME" \
+              --resource-group "$AZURE_RESOURCE_GROUP" \
+              --query "[?properties.active].properties.template.containers[0].image | [0]" \
+              --output tsv || true)"
+
+            if [ "$active_image" = "$expected_image" ]; then
+              echo "Active revision is now using $expected_image"
+              exit 0
+            fi
+
+            echo "Attempt $attempt/30: active image is '$active_image'. Waiting for rollout to finish."
+            sleep 10
+          done
+
+          echo "Expected active image '$expected_image' but found '$active_image'."
+          echo "Current revision snapshot:"
+          az containerapp revision list \
             --name "$AZURE_CONTAINER_APP_NAME" \
             --resource-group "$AZURE_RESOURCE_GROUP" \
-            --query "[?properties.active].properties.template.containers[0].image | [0]" \
-            --output tsv)"
+            --output jsonc || true
 
-          if [ "$active_image" != "${{ steps.image.outputs.image }}" ]; then
-            echo "Expected active image '${{ steps.image.outputs.image }}' but found '$active_image'."
-            exit 1
-          fi
+          echo "Current container app snapshot:"
+          az containerapp show \
+            --name "$AZURE_CONTAINER_APP_NAME" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --output jsonc || true
+
+          exit 1
 
       - name: Verify health endpoint
         shell: bash
