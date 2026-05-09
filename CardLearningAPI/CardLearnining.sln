@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardLearning.API", "CardLearning.API\CardLearning.API.csproj", "{A06BA652-7A75-450B-98B4-A9934C743C08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.CardLearning.API", "Tests.CardLearning.API\Tests.CardLearning.API.csproj", "{D9B91B06-B427-4BD3-86E4-F4F2B4E005E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardLearning.Domain", "CardLearning.Domain\CardLearning.Domain.csproj", "{A9176AF8-550B-480D-A951-DA0FE4EF3D66}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardLearning.Application", "CardLearning.Application\CardLearning.Application.csproj", "{8A94303B-9885-4719-AE2D-655874A73591}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardLearning.Infrastructure", "CardLearning.Infrastructure\CardLearning.Infrastructure.csproj", "{ECE15CF5-76C6-4BD3-839B-2484B4E4DD4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.CardLearning.Application", "Tests.CardLearning.Application\Tests.CardLearning.Application.csproj", "{4440909B-F93D-40BE-8709-58CB82DB83C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.CardLearning.Infrastructure", "Tests.CardLearning.Infrastructure\Tests.CardLearning.Infrastructure.csproj", "{B4F515C7-3E08-4C62-868A-1C44D2585F5E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A06BA652-7A75-450B-98B4-A9934C743C08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A06BA652-7A75-450B-98B4-A9934C743C08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A06BA652-7A75-450B-98B4-A9934C743C08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A06BA652-7A75-450B-98B4-A9934C743C08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9B91B06-B427-4BD3-86E4-F4F2B4E005E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9B91B06-B427-4BD3-86E4-F4F2B4E005E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9B91B06-B427-4BD3-86E4-F4F2B4E005E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9B91B06-B427-4BD3-86E4-F4F2B4E005E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9176AF8-550B-480D-A951-DA0FE4EF3D66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9176AF8-550B-480D-A951-DA0FE4EF3D66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9176AF8-550B-480D-A951-DA0FE4EF3D66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9176AF8-550B-480D-A951-DA0FE4EF3D66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A94303B-9885-4719-AE2D-655874A73591}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A94303B-9885-4719-AE2D-655874A73591}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A94303B-9885-4719-AE2D-655874A73591}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A94303B-9885-4719-AE2D-655874A73591}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECE15CF5-76C6-4BD3-839B-2484B4E4DD4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECE15CF5-76C6-4BD3-839B-2484B4E4DD4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECE15CF5-76C6-4BD3-839B-2484B4E4DD4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECE15CF5-76C6-4BD3-839B-2484B4E4DD4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4440909B-F93D-40BE-8709-58CB82DB83C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4440909B-F93D-40BE-8709-58CB82DB83C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4440909B-F93D-40BE-8709-58CB82DB83C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4440909B-F93D-40BE-8709-58CB82DB83C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4F515C7-3E08-4C62-868A-1C44D2585F5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4F515C7-3E08-4C62-868A-1C44D2585F5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4F515C7-3E08-4C62-868A-1C44D2585F5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4F515C7-3E08-4C62-868A-1C44D2585F5E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <RootNamespace>CardLearningAPI</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,6 +18,11 @@
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CardLearning.Application\CardLearning.Application.csproj" />
+      <ProjectReference Include="..\CardLearning.Infrastructure\CardLearning.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>
