@@ -10,4 +10,18 @@
       <ProjectReference Include="..\CardLearning.Domain\CardLearning.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Common\Commands\" />
+      <Folder Include="Common\Queries\" />
+      <Folder Include="Decks\Commands\" />
+      <Folder Include="Decks\Queries\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="12.1.1" />
+      <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+      <PackageReference Include="MediatR" Version="14.1.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.15" />
+    </ItemGroup>
+
 </Project>
