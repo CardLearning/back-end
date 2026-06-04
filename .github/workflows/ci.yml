@@ -59,6 +59,7 @@ jobs:
           dotnet ef migrations script \
             --idempotent \
             --no-build \
+            --configuration Release
             --project ./CardLearning.Infrastructure/CardLearning.Infrastructure.csproj \
             --startup-project ./CardLearning.API/CardLearning.API.csproj \
             --output ./artifacts/migrations/idempotent.sql
