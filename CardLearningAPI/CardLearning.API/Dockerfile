@@ -8,6 +8,10 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["CardLearning.API/CardLearning.API.csproj", "CardLearning.API/"]
+COPY ["CardLearning.API/CardLearning.API.csproj", "CardLearning.API/"]
+COPY ["CardLearning.Application/CardLearning.Application.csproj", "CardLearning.Application/"]
+COPY ["CardLearning.Infrastructure/CardLearning.Infrastructure.csproj", "CardLearning.Infrastructure/"]
+COPY ["CardLearning.Domain/CardLearning.Domain.csproj", "CardLearning.Domain/"]
 RUN dotnet restore "CardLearning.API/CardLearning.API.csproj"
 COPY . .
 WORKDIR "/src/CardLearning.API"
