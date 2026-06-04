@@ -4,11 +4,21 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>CardLearing.Infrastructure</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\CardLearning.Application\CardLearning.Application.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.16">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.16" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.8" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="10.0.8" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.8" />
     </ItemGroup>
 
 </Project>

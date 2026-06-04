@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Http.HttpResults;
+using CardLearning.Application;
+using CardLearning.Infrastructure.DI;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,8 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo{ Title = "CardLearning.Api", Version = "v1" });
 });
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 

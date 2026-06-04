@@ -1,8 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore.;
+﻿using CardLearning.Domain;
+using Microsoft.EntityFrameworkCore;
 namespace CardLearning.Application.Interfaces;
-
 
 public interface IDbContext
 {
-    Dbset<T> GetDbset<T>() where T : class;
+    DbSet<Card> Cards { get;}
+    DbSet<Deck> Decks { get;}
+    DbSet<LearningSessionProgress> LearningSessionProgresses {get;}
+    DbSet<LearningSession> LearningSessions {get;} 
+    
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
