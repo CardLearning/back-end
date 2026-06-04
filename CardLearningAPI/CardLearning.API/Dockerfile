@@ -7,17 +7,17 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["CardLearningAPI/CardLearningAPI.csproj", "CardLearningAPI/"]
-RUN dotnet restore "CardLearningAPI/CardLearningAPI.csproj"
+COPY ["CardLearning.API/CardLearning.API.csproj", "CardLearning.API/"]
+RUN dotnet restore "CardLearning.API/CardLearning.API.csproj"
 COPY . .
-WORKDIR "/src/CardLearningAPI"
-RUN dotnet build "./CardLearningAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/CardLearning.API"
+RUN dotnet build "./CardLearning.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./CardLearningAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./CardLearning.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "CardLearningAPI.dll"]
+ENTRYPOINT ["dotnet", "CardLearning.API.dll"]
