@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CardLearning.Domain\CardLearning.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Common\Commands\" />
+      <Folder Include="Common\Queries\" />
+      <Folder Include="Decks\Commands\" />
+      <Folder Include="Decks\Queries\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="12.1.1" />
+      <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+      <PackageReference Include="MediatR" Version="12.5.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.16" />
+    </ItemGroup>
+
+</Project>

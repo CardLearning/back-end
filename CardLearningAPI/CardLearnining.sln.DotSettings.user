@@ -1,0 +1,9 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
+  &lt;Assembly Path="C:\Users\Sergey\.nuget\packages\microsoft.entityframeworkcore.abstractions\9.0.15\lib\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\Sergey\.nuget\packages\mediatr\12.5.0\lib\net6.0\MediatR.dll" /&gt;&#xD;
+&lt;/AssemblyExplorer&gt;</s:String>
+	<s:String x:Key="/Default/Environment/Hierarchy/Build/SolBuilderDuo/CustomGlobalProperties/=PreferredUILang/@EntryIndexedValue">en</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3358fb0d_002Dcce6_002D44b7_002D82f5_002Dc963991b2749/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;CardLearningAPI.Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Project Location="D:\Work\CardLearning\back\CardLearningAPI\CardLearningAPI.Tests" Presentation="&amp;lt;CardLearningAPI.Tests&amp;gt;" /&gt;&#xD;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

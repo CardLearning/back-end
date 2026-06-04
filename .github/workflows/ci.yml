@@ -9,10 +9,16 @@ on:
 permissions:
   contents: read
 
+defaults:
+  run:
+    working-directory: CardLearningAPI
+
 jobs:
   build-test:
-    name: Build and test
+    name: Build, test, and validate migrations
     runs-on: ubuntu-latest
+    env:
+      CI_DUMMY_CONNECTION_STRING: ${{ vars.CI_DUMMY_CONNECTION_STRING }}
 
     steps:
       - name: Checkout
@@ -23,22 +29,57 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
+      - name: Install dotnet-ef
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+          dotnet tool install --global dotnet-ef --version 9.0.16
+
       - name: Restore
-        run: dotnet restore CardLearningAPI/CardLearningAPI.sln
+        run: dotnet restore CardLearning.sln
 
       - name: Build
-        run: dotnet build CardLearningAPI/CardLearningAPI.sln --configuration Release --no-restore
+        run: dotnet build CardLearning.sln --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test CardLearningAPI/CardLearningAPI.sln --configuration Release --no-build --logger trx --results-directory TestResults
+        run: dotnet test CardLearning.sln --configuration Release --no-build --logger trx --results-directory TestResults
+
+      - name: Generate idempotent migration script
+        env:
+          ConnectionStrings__CardLearning: ${{ env.CI_DUMMY_CONNECTION_STRING }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${ConnectionStrings__CardLearning:-}" ]; then
+            echo "Missing required GitHub variable: CI_DUMMY_CONNECTION_STRING"
+            exit 1
+          fi
+          mkdir -p artifacts/migrations
+          dotnet ef migrations script \
+            --idempotent \
+            --no-build \
+            --configuration Release \
+            --project ./CardLearning.Infrastructure/CardLearning.Infrastructure.csproj \
+            --startup-project ./CardLearning.API/CardLearning.API.csproj \
+            --output ./artifacts/migrations/idempotent.sql
+          test -s ./artifacts/migrations/idempotent.sql
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: TestResults
+          path: CardLearningAPI/TestResults
           if-no-files-found: ignore
 
+      - name: Upload migration script artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: idempotent-migration-script
+          path: CardLearningAPI/artifacts/migrations/idempotent.sql
+          if-no-files-found: error
+
       - name: Validate Docker build
-        run: docker build --pull --file CardLearningAPI/CardLearningAPI/Dockerfile --tag cardlearning-api:ci CardLearningAPI
+        run: docker build --pull --file CardLearning.API/Dockerfile --tag cardlearning-api:ci .

@@ -1,0 +1,4 @@
+interface:
+  display_name: "ASP.NET Core Lesson"
+  short_description: "Guided ASP.NET Core lesson workflow"
+  default_prompt: "Use $aspnet-core-lesson to run a lesson on Dependency Injection."

@@ -14,9 +14,13 @@ concurrency:
   group: deploy-dev
   cancel-in-progress: false
 
+defaults:
+  run:
+    working-directory: CardLearningAPI
+
 jobs:
   deploy:
-    name: Build, test, publish, and deploy
+    name: Build, migrate, publish, and deploy
     runs-on: ubuntu-latest
     environment: dev
 
@@ -27,6 +31,7 @@ jobs:
       AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP || vars.AZURE_RESOURCE_GROUP }}
       AZURE_CONTAINER_APP_NAME: ${{ secrets.AZURE_CONTAINER_APP_NAME || vars.AZURE_CONTAINER_APP_NAME }}
       AZURE_ACR_NAME: ${{ secrets.AZURE_ACR_NAME || vars.AZURE_ACR_NAME }}
+      AZURE_SQL_CONNECTION_STRING: ${{ secrets.AZURE_SQL_CONNECTION_STRING || vars.AZURE_SQL_CONNECTION_STRING }}
       IMAGE_REPOSITORY: cardlearning-api
 
     steps:
@@ -38,21 +43,28 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
+      - name: Install dotnet-ef
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+          dotnet tool install --global dotnet-ef --version 9.0.16
+
       - name: Restore
-        run: dotnet restore CardLearningAPI/CardLearningAPI.sln
+        run: dotnet restore CardLearning.sln
 
       - name: Build
-        run: dotnet build CardLearningAPI/CardLearningAPI.sln --configuration Release --no-restore
+        run: dotnet build CardLearning.sln --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test CardLearningAPI/CardLearningAPI.sln --configuration Release --no-build --logger trx --results-directory TestResults
+        run: dotnet test CardLearning.sln --configuration Release --no-build --logger trx --results-directory TestResults
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: TestResults
+          path: CardLearningAPI/TestResults
           if-no-files-found: ignore
 
       - name: Validate deployment configuration
@@ -67,6 +79,7 @@ jobs:
             AZURE_RESOURCE_GROUP
             AZURE_CONTAINER_APP_NAME
             AZURE_ACR_NAME
+            AZURE_SQL_CONNECTION_STRING
           )
 
           for name in "${required_vars[@]}"; do
@@ -83,6 +96,26 @@ jobs:
           tenant-id: ${{ env.AZURE_TENANT_ID }}
           subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Build migration bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/migrations
+          dotnet ef migrations bundle \
+            --configuration Release \
+            --self-contained \
+            -r linux-x64 \
+            --project ./CardLearning.Infrastructure/CardLearning.Infrastructure.csproj \
+            --startup-project ./CardLearning.API/CardLearning.API.csproj \
+            --output ./artifacts/migrations/efbundle
+          chmod +x ./artifacts/migrations/efbundle
+
+      - name: Apply migrations with bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./artifacts/migrations/efbundle --connection "$AZURE_SQL_CONNECTION_STRING"
+
       - name: Build and push image
         id: image
         shell: bash
@@ -94,9 +127,9 @@ jobs:
           image="${AZURE_ACR_NAME}.azurecr.io/${IMAGE_REPOSITORY}:${GITHUB_SHA}"
           docker build \
             --pull \
-            --file CardLearningAPI/CardLearningAPI/Dockerfile \
+            --file CardLearning.API/Dockerfile \
             --tag "$image" \
-            CardLearningAPI
+            .
 
           docker push "$image"
           echo "image=$image" >> "$GITHUB_OUTPUT"
@@ -112,6 +145,16 @@ jobs:
             --server "${AZURE_ACR_NAME}.azurecr.io" \
             --identity system
 
+      - name: Configure Container App secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          az containerapp secret set \
+            --name "$AZURE_CONTAINER_APP_NAME" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --secrets sql-connection-string="$AZURE_SQL_CONNECTION_STRING"
+
       - name: Deploy Container App revision
         shell: bash
         run: |
@@ -121,7 +164,7 @@ jobs:
             --name "$AZURE_CONTAINER_APP_NAME" \
             --resource-group "$AZURE_RESOURCE_GROUP" \
             --image "${{ steps.image.outputs.image }}" \
-            --set-env-vars ASPNETCORE_URLS=http://+:8080 ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+            --set-env-vars ASPNETCORE_URLS=http://+:8080 ASPNETCORE_FORWARDEDHEADERS_ENABLED=true ConnectionStrings__CardLearning=secretref:sql-connection-string
 
       - name: Wait for active revision rollout
         shell: bash

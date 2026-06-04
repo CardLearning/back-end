@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <RootNamespace>CardLearningAPI.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CardLearningAPI\CardLearningAPI.csproj" />
+      <ProjectReference Include="..\CardLearning.API\CardLearning.API.csproj" />
     </ItemGroup>
 
 </Project>
