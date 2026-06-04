@@ -15,7 +15,17 @@ public static class DependencyInjection
     )
     {
         var connectionString = configuration.GetConnectionString("CardLearning");
-        services.AddDbContext<CardLearningDbContext>(options => options.UseSqlServer(connectionString), ServiceLifetime.Scoped);
+        services.AddDbContext<CardLearningDbContext>(
+            options => options.UseSqlServer(
+                connectionString,
+                sqlServerOptions =>
+                {
+                    sqlServerOptions.EnableRetryOnFailure(
+                        maxRetryCount: 3,
+                        maxRetryDelay: TimeSpan.FromSeconds(30),
+                        errorNumbersToAdd: null);
+                }),
+            ServiceLifetime.Scoped);
         services.AddScoped<IDbContext>(provider =>
             provider.GetRequiredService<CardLearningDbContext>());
         

@@ -49,7 +49,15 @@ public class CardLearningDbContextFactory : IDesignTimeDbContextFactory<CardLear
         }
 
         var optionBuilder = new DbContextOptionsBuilder<CardLearningDbContext>();
-        optionBuilder.UseSqlServer(connectionString);
+        optionBuilder.UseSqlServer(
+            connectionString,
+            sqlServerOptions =>
+            {
+                sqlServerOptions.EnableRetryOnFailure(
+                    maxRetryCount: 3,
+                    maxRetryDelay: TimeSpan.FromSeconds(30),
+                    errorNumbersToAdd: null);
+            });
 
         return new CardLearningDbContext(optionBuilder.Options);
 

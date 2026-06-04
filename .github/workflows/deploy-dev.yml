@@ -114,7 +114,21 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ./artifacts/migrations/efbundle --connection "$AZURE_SQL_CONNECTION_STRING"
+
+          for attempt in 1 2 3; do
+            if ./artifacts/migrations/efbundle --connection "$AZURE_SQL_CONNECTION_STRING"; then
+              echo "Migration bundle completed successfully on attempt $attempt."
+              exit 0
+            fi
+
+            if [ "$attempt" -lt 3 ]; then
+              echo "Migration bundle failed on attempt $attempt. Waiting 30 seconds before retry."
+              sleep 30
+            fi
+          done
+
+          echo "Migration bundle failed after 3 attempts."
+          exit 1
 
       - name: Build and push image
         id: image
