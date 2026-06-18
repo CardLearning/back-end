@@ -1,15 +1,17 @@
+using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Xunit;
 
 namespace CardLearningAPI.Tests;
 
-public sealed class ApiSmokeTests : IClassFixture<WebApplicationFactory<Program>>
+public sealed class ApiSmokeTests : IClassFixture<TestWebApplicationFactory>
 {
     private readonly HttpClient _client;
 
-    public ApiSmokeTests(WebApplicationFactory<Program> factory)
+    public ApiSmokeTests(TestWebApplicationFactory factory)
     {
         _client = factory.CreateClient();
     }
@@ -37,6 +39,27 @@ public sealed class ApiSmokeTests : IClassFixture<WebApplicationFactory<Program>
             Assert.InRange(forecast.TemperatureC, -20, 54);
             Assert.Equal(32 + (int)(forecast.TemperatureC / 0.5556), forecast.TemperatureF);
         });
+    }
+
+    [Fact]
+    public async Task CreateDeck_with_invalid_payload_returns_bad_request_with_validation_text()
+    {
+        var response = await _client.PostAsJsonAsync("/Deck", new
+        {
+            Name = "",
+            Description = "test"
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        await using var responseStream = await response.Content.ReadAsStreamAsync();
+        using var document = await JsonDocument.ParseAsync(responseStream);
+
+        Assert.Equal("Validation failed.", document.RootElement.GetProperty("title").GetString());
+        Assert.Equal("One or more validation errors occurred.", document.RootElement.GetProperty("detail").GetString());
+        Assert.Contains(
+            document.RootElement.GetProperty("errors").EnumerateArray().Select(x => x.GetString()),
+            error => error is not null && error.Contains("Name", StringComparison.OrdinalIgnoreCase));
     }
 
     private sealed record HealthResponse(string Status);
