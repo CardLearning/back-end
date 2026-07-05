@@ -11,7 +11,7 @@ public class CreateCardCommandHandler(IDbContext cardLearningDbContext) : IReque
 {
     public async Task<int> Handle(CreateCardCommand request, CancellationToken cancellationToken)
     {
-        var duplicateName = cardLearningDbContext.Cards.FirstOrDefaultAsync(x => x.Name == request.Name, cancellationToken: cancellationToken);
+        var duplicateName = await cardLearningDbContext.Cards.FirstOrDefaultAsync(x => x.Name == request.Name, cancellationToken: cancellationToken);
         if (duplicateName != null)
         {
             throw new CardAlreadyExistsException($"Card {request.Name} already exists.");
