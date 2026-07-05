@@ -48,17 +48,7 @@ app.MapGet("/healthz", () => Results.Ok(new { status = "Healthy" }))
 
 app.Use(async (context, next) =>
 {
-    var isMaintenanceMode = builder.Configuration.GetValue<bool>("Configs:IsMaintenanceMode");
-    
-    if (isMaintenanceMode &&  context.Request.Path.Value != "/healthz")
-    {
-        context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-        return;
-    }
-    else
-    {
-        await next();
-    }
+    await next();
 });
 
 app.MapControllers();
